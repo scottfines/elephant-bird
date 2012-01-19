@@ -93,7 +93,7 @@ public class ProtobufToPig {
    * @return the object representing fieldValue in Pig -- either a bag or a tuple.
    */
   @SuppressWarnings("unchecked")
-  protected Object messageToTuple(FieldDescriptor fieldDescriptor, Object fieldValue) {
+  public Object messageToTuple(FieldDescriptor fieldDescriptor, Object fieldValue) {
     assert fieldDescriptor.getType() == FieldDescriptor.Type.MESSAGE : "messageToTuple called with field of type " + fieldDescriptor.getType();
 
     if (fieldDescriptor.isRepeated()) {
@@ -133,7 +133,7 @@ public class ProtobufToPig {
    * @throws ExecException if Pig decides to.  Shouldn't happen because we won't walk off the end of a tuple's field set.
    */
   @SuppressWarnings("unchecked")
-  protected Object singleFieldToTuple(FieldDescriptor fieldDescriptor, Object fieldValue) {
+  public Object singleFieldToTuple(FieldDescriptor fieldDescriptor, Object fieldValue) {
     assert fieldDescriptor.getType() != FieldDescriptor.Type.MESSAGE : "messageToFieldSchema called with field of type " + fieldDescriptor.getType();
 
     if (fieldDescriptor.isRepeated()) {
