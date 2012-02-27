@@ -73,14 +73,14 @@ public class ProtobufFileInputFormat<M extends Message> extends FileInputFormat<
     }
 
     private static class ProtobufFileRecordReader<M extends Message> extends RecordReader<LongWritable, ProtobufWritable<M>>{
-        private final TypeRef<M> typeRef_;
-        private LongWritable key_;
-        private ProtobufWritable<M> value_;
-        private long start_;
-        private long end_;
-        private long pos_;
-        private FSDataInputStream fileIn_;
-        private Message.Builder protoBuilder;
+        protected final TypeRef<M> typeRef_;
+        protected LongWritable key_;
+        protected ProtobufWritable<M> value_;
+        protected long start_;
+        protected long end_;
+        protected long pos_;
+        protected FSDataInputStream fileIn_;
+        protected Message.Builder protoBuilder;
 
 
         private ProtobufFileRecordReader(TypeRef<M> typeRef_) {
@@ -101,12 +101,9 @@ public class ProtobufFileInputFormat<M extends Message> extends FileInputFormat<
             fileIn_ = fs.open(file);
             fileIn_.seek(start_);
 
-            StreamSearcher searcher = new StreamSearcher(Protobufs .KNOWN_GOOD_POSITION_MARKER);
-
-            if(start_!=0){
-                fileIn_.seek(start_);
-                searcher.search(fileIn_);
-            }
+            //every protocol buffer is preceded by Protobufs.KNOWN_GOOD_POSITION_MARKER, so set up nextKeyValue so its offset is at the start of a protocol buffer
+            StreamSearcher searcher = new StreamSearcher(Protobufs.KNOWN_GOOD_POSITION_MARKER);
+            searcher.search(fileIn_);
 
             pos_ = fileIn_.getPos();
         }
@@ -121,12 +118,6 @@ public class ProtobufFileInputFormat<M extends Message> extends FileInputFormat<
                 key_ = new LongWritable();
             key_.set(pos_);
 
-            //skip the position marger
-            if(Protobufs.KNOWN_GOOD_POSITION_MARKER.length+pos_<=end_)
-                fileIn_.skipBytes(Protobufs.KNOWN_GOOD_POSITION_MARKER.length);
-
-            pos_ = fileIn_.getPos();
-
             try {
                 if (protoBuilder == null) {
                     protoBuilder = Protobufs.getMessageBuilder(typeRef_.getRawClass());
@@ -140,13 +131,17 @@ public class ProtobufFileInputFormat<M extends Message> extends FileInputFormat<
                     value_.set((M) builder.build());
                     LOG.trace(value_.get().toString());
                 }
+                //skip the position marker
+                if(Protobufs.KNOWN_GOOD_POSITION_MARKER.length+pos_<end_) {
+                    fileIn_.skipBytes(Protobufs.KNOWN_GOOD_POSITION_MARKER.length);
+                }
+                pos_ = fileIn_.getPos();
                 return success;
             } catch (InvalidProtocolBufferException e) {
-                LOG.error("Invalid Protobuf exception while building " + typeRef_.getRawClass().getName(), e);
+                throw new RuntimeException("Invalid Protobuf exception while building " + typeRef_.getRawClass().getName() + " at " + pos_, e);
             } catch(UninitializedMessageException ume) {
-                LOG.error("Uninitialized Message Exception while building " + typeRef_.getRawClass().getName(), ume);
+                throw new RuntimeException("Uninitialized Message Exception while building " + typeRef_.getRawClass().getName() + " at " + pos_, ume);
             }
-            return false;
         }
 
         @Override

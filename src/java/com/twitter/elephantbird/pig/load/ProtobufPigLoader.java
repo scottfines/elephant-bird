@@ -48,9 +48,9 @@ import java.io.IOException;
  *
  */
 public class ProtobufPigLoader<M extends Message> extends LzoBaseLoadFunc{
-    private TypeRef<M> typeRef_ = null;
+    protected TypeRef<M> typeRef_ = null;
 
-    private final ProtobufToPig protoToPig_ = new ProtobufToPig();
+    protected final ProtobufToPig protoToPig_ = new ProtobufToPig();
     /**
      * Default constructor. Do not use for actual loading.
      */

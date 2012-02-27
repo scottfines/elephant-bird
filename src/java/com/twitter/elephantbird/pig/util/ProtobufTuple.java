@@ -13,11 +13,11 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
  */
 public class ProtobufTuple extends AbstractLazyTuple {
 
-  private final Message msg_;
-  private final Descriptor descriptor_;
-  private final List<FieldDescriptor> fieldDescriptors_;
-  private final ProtobufToPig protoConv_;
-  private final int protoSize_;
+  protected final Message msg_;
+  protected final Descriptor descriptor_;
+  protected final List<FieldDescriptor> fieldDescriptors_;
+  protected final ProtobufToPig protoConv_;
+  protected final int protoSize_;
 
   public ProtobufTuple(Message msg) {
     msg_ = msg;

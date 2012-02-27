@@ -16,7 +16,6 @@ import org.apache.pig.impl.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hadoop.compression.lzo.LzopCodec;
 import com.twitter.elephantbird.mapreduce.io.BinaryWritable;
 import com.twitter.elephantbird.pig.util.PigCounterHelper;
 import com.twitter.elephantbird.util.TypeRef;
@@ -28,8 +27,6 @@ import com.twitter.elephantbird.util.TypeRef;
  */
 public abstract class LzoBaseLoadFunc extends LoadFunc implements LoadMetadata {
   private static final Logger LOG = LoggerFactory.getLogger(LzoBaseLoadFunc.class);
-
-  protected final String LZO_EXTENSION = new LzopCodec().getDefaultExtension();
 
   protected RecordReader reader_;
 
